@@ -2,7 +2,7 @@ const ROLES = require('../config/rolesList');
 
 const verifyRoles = (...allowedRoles) => {
     return (req, res, next) => {
-        if (!req?.user?.roles) {
+        if (!req?.user?.roles || !Array.isArray(req.user.roles)) {
             return res.status(403).json({ message: 'Forbidden' });
         }
 

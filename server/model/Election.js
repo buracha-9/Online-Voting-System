@@ -10,16 +10,11 @@ const electionSchema = new Schema({
         type: String,
         default: ''
     },
-    candidates: [{
-        name: {
-            type: String,
-            required: true
-        },
-        party: {
-            type: String,
-            default: ''
-        }
-    }],
+    electionID: {
+        type: String,
+        unique: true,
+        required: true
+    },
     startDate: {
         type: Date,
         required: true
@@ -27,7 +22,17 @@ const electionSchema = new Schema({
     endDate: {
         type: Date,
         required: true
-    }
+    },
+    results: [{
+        candidate: {
+            type: String
+        },
+        votes: {
+            type: Number
+        }
+    }]
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Election', electionSchema);

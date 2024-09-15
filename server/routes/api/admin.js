@@ -14,4 +14,7 @@ router.get('/logs', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.vi
 // Admin route for system configuration
 router.post('/config', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.updateConfig);
 
+//Adimin route for system stats
+router.get('/stats', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.getSystemStats);
+
 module.exports = router;

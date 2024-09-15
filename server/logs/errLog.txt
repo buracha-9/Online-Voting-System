@@ -1,0 +1,3 @@
+20240902	14:43:22	f551d2f7-a524-4b03-ad86-2f0370d6621e	Error: ENOENT: no such file or directory, stat 'C:\Users\Owner\Desktop\Online-Voting-System\server\views\index.html'
+20240915	16:39:27	ccc9235a-fd40-4541-ad33-8a7058ca08aa	SyntaxError: Expected double-quoted property name in JSON at position 62
+20240915	16:39:30	aabc9163-0f5c-4d6e-a460-b44c1f26c852	SyntaxError: Expected double-quoted property name in JSON at position 62

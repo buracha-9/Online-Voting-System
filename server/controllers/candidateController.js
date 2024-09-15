@@ -1,28 +1,5 @@
 const Candidate = require('../model/Candidate');
 
-// Add a candidate
-const addCandidate = async (req, res) => {
-    const { name, electionId, party } = req.body;
-
-    if (!name || !electionId) {
-        return res.status(400).json({ message: 'Name and election ID are required.' });
-    }
-
-    try {
-        const candidate = new Candidate({
-            name,
-            electionId,
-            party
-        });
-
-        const result = await candidate.save();
-        res.status(201).json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500); // Internal server error
-    }
-};
-
 // Update a candidate
 const updateCandidate = async (req, res) => {
     const { id } = req.params;
@@ -88,7 +65,6 @@ const getCandidateById = async (req, res) => {
 };
 
 module.exports = {
-    addCandidate,
     updateCandidate,
     removeCandidate,
     listCandidates,

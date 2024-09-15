@@ -1,21 +1,29 @@
 const jwt = require('jsonwebtoken');
 
 const verifyJWT = (req, res, next) => {
-    // Extract the token from the Authorization header
     const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return res.sendStatus(401);
 
-    // Extract the token
-    const token = authHeader.split(' ')[1];
+    // Check if Authorization header is present and starts with 'Bearer'
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
 
-    // Verify the token
+    const token = authHeader.split(' ')[1]; // Extract the token from the Bearer header
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) return res.sendStatus(403); // Invalid token
+        if (err) {
+            return res.status(403).json({ message: 'Failed to authenticate token' });
+        }
 
-        // Attach the decoded user information to the request object
-        req.user = decoded.UserInfo; // Adjust this based on your token payload
+        // Adjust this to match your token payload structure
+        req.user = decoded.UserInfo; // Assuming `UserInfo` contains userId or other user-related data
+
+        if (!req.user) {
+            return res.status(403).json({ message: 'Invalid token structure, user info missing' });
+        }
+
         next();
     });
-}
+};
 
 module.exports = verifyJWT;

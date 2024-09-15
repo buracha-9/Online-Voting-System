@@ -8,11 +8,11 @@ const verifyRoles = require('../../middleware/verifyRoles'); // Import verifyRol
 
 router.route('/')
     .get(verifyJWT, employeesController.getAllEmployees)
-    .post(verifyJWT, verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), employeesController.createNewEmployee)
-    .put(verifyJWT, verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), employeesController.updateEmployee)
-    .delete(verifyJWT, verifyRoles(ROLES_LIST.Admin), employeesController.deleteEmployee);
+    .post(verifyJWT, verifyRoles(ROLES_LIST.ADMIN), employeesController.createNewEmployee)
 
 router.route('/:id')
-    .get(verifyJWT, verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), employeesController.getEmployee);
+    .get(verifyJWT, verifyRoles(ROLES_LIST.ADMIN), employeesController.getEmployee)
+    .put(verifyJWT, verifyRoles(ROLES_LIST.ADMIN), employeesController.updateEmployee)
+    .delete(verifyJWT, verifyRoles(ROLES_LIST.ADMIN), employeesController.deleteEmployee)
 
 module.exports = router;

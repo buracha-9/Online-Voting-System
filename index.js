@@ -51,7 +51,6 @@ app.use('/employees', require('./server/routes/api/employees'));
 app.use('/elections', require('./server/routes/api/elections'));
 app.use('/candidates', require('./server/routes/api/candidates'));
 app.use('/votes', require('./server/routes/api/vote'));
-app.use('/results', require('./server/routes/api/results'));
 app.use('/admin', require('./server/routes/api/admin'));
 
 // Error handling middleware

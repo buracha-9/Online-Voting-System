@@ -5,9 +5,6 @@ const verifyJWT = require('../../middleware/verifyJWT'); // Import JWT verificat
 const verifyRoles = require('../../middleware/verifyRoles');
 const ROLES_LIST = require('../../config/rolesList');
 
-// Add a candidate (admin only)
-router.post('/', verifyJWT, verifyRoles(ROLES_LIST.Admin), candidateController.addCandidate);
-
 // Update a candidate (admin only)
 router.put('/:id', verifyJWT, verifyRoles(ROLES_LIST.Admin), candidateController.updateCandidate);
 
@@ -15,9 +12,11 @@ router.put('/:id', verifyJWT, verifyRoles(ROLES_LIST.Admin), candidateController
 router.delete('/:id', verifyJWT, verifyRoles(ROLES_LIST.Admin), candidateController.removeCandidate);
 
 // List candidates for an election (publicly accessible or requires authentication based on use case)
+// Consider adding authentication based on your use case
 router.get('/election/:electionId', candidateController.listCandidates);
 
 // Get a candidate by ID (publicly accessible or requires authentication based on use case)
+// Consider adding authentication based on your use case
 router.get('/:id', candidateController.getCandidateById);
 
 module.exports = router;

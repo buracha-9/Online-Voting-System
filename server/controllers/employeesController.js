@@ -45,33 +45,39 @@ const createNewEmployee = async (req, res) => {
 }
 
 const updateEmployee = async (req, res) => {
-    if (!req?.body?.id) {
+    const { id } = req.params;  // Get id from URL params
+
+    if (!id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
 
-    const employee = await Employee.findOne({ _id: req.body.id }).exec();
+    const employee = await Employee.findOne({ _id: id }).exec();
     if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
+        return res.status(404).json({ "message": `No employee matches ID ${id}.` });
     }
 
+    // Update the employee fields if they are provided
     if (req.body?.firstname) employee.firstname = req.body.firstname;
     if (req.body?.lastname) employee.lastname = req.body.lastname;
     if (req.body?.email) employee.email = req.body.email;
     if (req.body?.department) employee.department = req.body.department;
     if (req.body?.roles) employee.roles = req.body.roles;
-    if (req.body?.dateJoined) employee.dateJoined = req.body.dateJoined; // Update dateJoined if provided
+    if (req.body?.dateJoined) employee.dateJoined = req.body.dateJoined;
 
     const result = await employee.save();
     res.json(result);
 }
 
 const deleteEmployee = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
+    const { id } = req.params;  // Get id from URL params
 
-    const employee = await Employee.findOne({ _id: req.body.id }).exec();
+    if (!id) return res.status(400).json({ 'message': 'Employee ID required.' });
+
+    const employee = await Employee.findOne({ _id: id }).exec();
     if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
+        return res.status(404).json({ "message": `No employee matches ID ${id}.` });
     }
+
     const result = await employee.deleteOne();
     res.json(result);
 }
