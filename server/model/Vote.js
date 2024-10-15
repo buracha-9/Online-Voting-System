@@ -7,13 +7,8 @@ const voteSchema = new mongoose.Schema({
         required: true 
     },
     candidateId: { 
-        type: mongoose.Schema.Types.ObjectId, // Store hashed candidateId as an ObjectId
-        ref: 'Candidate',
-        required: true 
-    },
-    voterId: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User', 
+        ref: 'Candidate',
         required: true 
     },
     voteDate: { 
@@ -24,7 +19,7 @@ const voteSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Adding indexes for better performance
-voteSchema.index({ electionId: 1, candidateId: 1, voterId: 1 });
+// Unique index to ensure one vote per voter for a candidate in a specific election
+voteSchema.index({ electionId: 1, candidateId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Vote', voteSchema);

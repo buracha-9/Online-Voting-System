@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Election = require('../model/Election');
 const Candidate = require('../model/Candidate');
 
@@ -17,8 +18,17 @@ const getAllElections = async (req, res) => {
 const createNewElection = async (req, res) => {
     const { title, description, electionID, candidates, startDate, endDate } = req.body;
 
-    if (!title || !electionID || !startDate || !endDate) {
-        return res.status(400).json({ message: 'Title, election ID, start date, and end date are required.' });
+    // Validate required fields and check for empty electionID
+    if (!title || !electionID || electionID.trim() === "" || !startDate || !endDate) {
+        return res.status(400).json({ message: 'Title, valid election ID, start date, and end date are required.' });
+    }
+
+    // Validate candidate data if provided
+    if (candidates && candidates.length > 0) {
+        const invalidCandidates = candidates.filter(c => !c.name || !c.party); // Removed hashedId check
+        if (invalidCandidates.length) {
+            return res.status(400).json({ message: 'Invalid candidate data provided. Each candidate must have a name and party.' });
+        }
     }
 
     try {
@@ -28,12 +38,14 @@ const createNewElection = async (req, res) => {
             return res.status(409).json({ message: 'Election with this ID already exists.' });
         }
 
+        // Create and save the election
         const election = new Election({
             title,
             description,
             electionID,
             startDate,
-            endDate
+            endDate,
+            candidates: [] // Initialize candidates array
         });
 
         const savedElection = await election.save();
@@ -45,38 +57,48 @@ const createNewElection = async (req, res) => {
                     name: candidateData.name,
                     electionId: savedElection._id, // Link candidate to this election
                     party: candidateData.party,
-                    candidateID: candidateData.candidateID
+                    // Removed hashedId
                 });
-                return candidate.save();
+                return candidate.save(); // Return the promise for saving candidate
             });
 
-            await Promise.all(candidatePromises);
+            const savedCandidates = await Promise.all(candidatePromises);
+            // Update election's candidates with saved candidate IDs
+            savedElection.candidates = savedCandidates.map(candidate => candidate._id);
+            await savedElection.save();
         }
 
-        res.status(201).json(savedElection);
+        // Respond with the saved election and its candidates
+        res.status(201).json({ election: savedElection, candidates });
     } catch (err) {
-        console.error(err);
-        res.sendStatus(500); // Internal server error
+        console.error('Error creating election:', err);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 // Update an election
 const updateElection = async (req, res) => {
-    const { id } = req.params; // Assuming the route parameter is `:id`
+    const { id } = req.params;
     const { title, description, candidates, startDate, endDate, electionID } = req.body;
 
+    // Check if the ID is a valid ObjectId and electionID is provided
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid or missing election ID.' });
+    }
+
+    if (!electionID) {
+        return res.status(400).json({ message: 'Election ID is required for updates.' });
+    }
+
     try {
-        const election = await Election.findById(id);
-        if (!election) return res.status(404).json({ message: 'Election not found.' });
+        // Update the election directly
+        const updatedElection = await Election.findByIdAndUpdate(
+            id,
+            { title, description, startDate, endDate, electionID },
+            { new: true, runValidators: true } // Returns updated document
+        );
 
-        // Update fields if they are provided
-        if (title) election.title = title;
-        if (description) election.description = description;
-        if (startDate) election.startDate = startDate;
-        if (endDate) election.endDate = endDate;
-        if (electionID) election.electionID = electionID;
-
-        const updatedElection = await election.save();
+        if (!updatedElection) return res.status(404).json({ message: 'Election not found.' });
 
         // Optionally, update candidates if provided
         if (candidates && candidates.length > 0) {
@@ -89,7 +111,7 @@ const updateElection = async (req, res) => {
                     name: candidateData.name,
                     electionId: updatedElection._id,
                     party: candidateData.party,
-                    candidateID: candidateData.candidateID
+                    // Removed hashedId
                 });
                 return candidate.save();
             });
@@ -106,19 +128,20 @@ const updateElection = async (req, res) => {
 
 // Delete an election
 const deleteElection = async (req, res) => {
-    const { id } = req.params; // Assuming the route parameter is `:id`
+    const { id } = req.params;
+
+    // Check if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid election ID.' });
+    }
 
     try {
-        // Find and delete the election by its ID
         const result = await Election.findByIdAndDelete(id);
-
-        if (!result) {
-            return res.status(404).json({ message: 'Election not found.' });
-        }
+        if (!result) return res.status(404).json({ message: 'Election not found.' });
 
         // Remove all candidates associated with this election
-        await Candidate.deleteMany({ electionId: id });
-
+        const deleteResult = await Candidate.deleteMany({ electionId: id });
+        console.log(`${deleteResult.deletedCount} candidates deleted.`);
         res.json({ message: 'Election and associated candidates deleted.' });
     } catch (err) {
         console.error(err);
@@ -128,12 +151,9 @@ const deleteElection = async (req, res) => {
 
 // Get a single election by electionID
 const getElectionById = async (req, res) => {
-    const { id } = req.params; // Assuming the route parameter is `:id`
-
-    console.log(`Received electionID: ${id}`); // Log to verify
+    const { id } = req.params;
 
     try {
-        // Find election by ID or custom field
         const election = await Election.findOne({ electionID: id });
         if (!election) return res.status(404).json({ message: 'Election not found.' });
 
