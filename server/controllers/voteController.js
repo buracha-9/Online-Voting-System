@@ -4,13 +4,13 @@ const Vote = require('../model/Vote');
 const Election = require('../model/Election');
 const Candidate = require('../model/Candidate');
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Ensure this is 32 bytes for AES-256
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes for AES-256
 const IV_LENGTH = 16; // For AES, this is always 16 bytes
 
 // Encrypt function
 const encrypt = (text) => {
     const iv = crypto.randomBytes(IV_LENGTH);
-    const key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
+    const key = Buffer.from(ENCRYPTION_KEY, 'hex'); // Use 'hex' instead of 'utf-8'
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -23,7 +23,7 @@ const decrypt = (text) => {
         const textParts = text.split(':');
         const iv = Buffer.from(textParts.shift(), 'hex');
         const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-        const key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
+        const key = Buffer.from(ENCRYPTION_KEY, 'hex'); // Use 'hex' instead of 'utf-8'
         const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
         let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
@@ -33,22 +33,20 @@ const decrypt = (text) => {
     }
 };
 
-// Hash function (for comparison and indexing performance)
-const hashCandidateId = (candidateId) => {
-    return crypto.createHash('sha256').update(candidateId).digest('hex');
-};
-
 // Cast a vote
 const castVote = async (req, res) => {
     const { electionID, candidateId } = req.body;
-    const { userId } = req.user; // Ensure userId is attached properly
+    const { userId } = req.user;  // Get userId from the token
 
-    if (!electionID || !candidateId || !userId) {
-        return res.status(400).json({ message: 'Election ID, candidate ID, and user ID are required.' });
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    if (!electionID || !candidateId) {
+        return res.status(400).json({ message: 'Election ID and candidate ID are required.' });
     }
 
     try {
-        // Check if the election and candidate exist
         const election = await Election.findById(electionID);
         if (!election) return res.status(404).json({ message: 'Election not found.' });
 
@@ -64,29 +62,19 @@ const castVote = async (req, res) => {
         const existingVote = await Vote.findOne({ electionID, userId });
         if (existingVote) return res.status(403).json({ message: 'You have already voted in this election.' });
 
-        // Check if the user has already voted for another party in this election
-        const partyVote = await Vote.findOne({ electionID, userId, 'candidate.partyId': { $ne: partyId } });
-        if (partyVote) return res.status(403).json({ message: 'You can only vote for one party in this election.' });
+        const encryptedCandidateId = encrypt(candidateId.toString());
 
-        // Hash the candidate ID for storage
-        const hashedCandidateId = hashCandidateId(candidateId.toString());
-
-        // Store the vote
         const vote = new Vote({
             electionID,
-            candidateId: hashedCandidateId, // Store the hashed ID
+            candidateId: encryptedCandidateId,
             voteDate: new Date(),
-            userId, // Store the user ID to track who voted
-            partyId // Store the party ID to prevent multiple party votes
+            userId,  // Use userId instead of voterId
         });
 
         await vote.save();
 
-        // Update total votes for the candidate
-         await Candidate.findOneAndUpdate(
-        { hashedId: hashedCandidateId },
-        { $inc: { totalVotes: 1 } }
-);
+        // Increment the total votes for the candidate
+        await Candidate.findByIdAndUpdate(candidateId, { $inc: { totalVotes: 1 } }, { new: true });
 
         res.status(201).json({ message: 'Vote cast successfully.' });
     } catch (err) {
@@ -94,107 +82,83 @@ const castVote = async (req, res) => {
         res.sendStatus(500);
     }
 };
-
-// Count votes for an election
+//count votes
 const countVotes = async (electionID) => {
     try {
-        console.log(`Counting votes for electionId: ${electionID}`);
-
         if (!mongoose.Types.ObjectId.isValid(electionID)) {
-            throw new Error('Invalid electionId format');
+            throw new Error('Invalid election ID');
         }
-        const objectId = new mongoose.Types.ObjectId(electionID);
 
-        const votes = await Vote.aggregate([
-            { $match: { electionID: objectId } },
-            { $group: { _id: '$candidateId', count: { $sum: 1 } } }
+        const voteCounts = await Vote.aggregate([
+            { $match: { electionId: new mongoose.Types.ObjectId(electionID) } },
+            { $group: { _id: "$encryptedCandidateId", count: { $sum: 1 } } }
         ]);
 
-        console.log('Votes:', votes);
+        console.log('Vote Counts:', voteCounts); // Check what is being returned
 
-        // Find candidates corresponding to the hashed candidate IDs
-        const results = await Promise.all(votes.map(async (vote) => {
-            const candidate = await Candidate.findOne({ hashedId: vote._id }).lean();
-            return {
-                candidate: candidate ? candidate.name : `Candidate with ID ${vote._id} not found`,
-                votes: vote.count
-            };
-        }));
+        return voteCounts.map(({ _id, count }) => {
+            try {
+                const candidateId = decrypt(_id);
+                return {
+                    candidateId,
+                    votes: count
+                };
+            } catch (decryptionError) {
+                console.error(`Decryption error for candidate ID ${_id}:`, decryptionError);
+                return { candidateId: null, votes: count }; // Handle decryption failure
+            }
+            console.log('Decrypted Candidate ID:', candidateId);
+        });
 
-        console.log('Results:', results);
-        return results;
     } catch (err) {
-        console.error('Error in countVotes:', err.message);
+        console.error('Error counting votes:', err);
         throw new Error('Error counting votes');
     }
 };
 
-// Calculate results for an election
 const calculateResults = async (req, res) => {
-    const { id } = req.params; // Election ID
+    const { electionID } = req.params;
 
     try {
-        // Find the election
-        const election = await Election.findById(id);
-        if (!election) return res.status(404).json({ message: 'Election not found.' });
+        const election = await Election.findById(electionID);
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found.' });
+        }
 
-        // Aggregate votes for each candidate
-        const voteCounts = await Vote.aggregate([
-            { $match: { electionID: mongoose.Types.ObjectId(id) } },
-            { $group: { _id: "$candidateId", count: { $sum: 1 } } }
-        ]);
+        const voteCounts = await countVotes(electionID);
+        console.log('Vote Counts Returned:', voteCounts); // Check what is returned from countVotes
 
-        // Find candidates
-        const candidateIds = voteCounts.map(vote => vote._id);
-        const candidates = await Candidate.find({ hashedId: { $in: candidateIds } }).lean();
+        const candidateVotes = {};
+        for (const { candidateId, votes } of voteCounts) {
+            if (candidateId) {
+                candidateVotes[candidateId] = (candidateVotes[candidateId] || 0) + votes;
+            }
+        }
 
-        // Prepare results
-        const results = voteCounts.map(voteCount => {
-            const candidate = candidates.find(cand => cand.hashedId === voteCount._id);
-            return {
-                candidate: candidate ? candidate.name : `Candidate with ID ${voteCount._id} not found`,
-                votes: voteCount.count
-            };
-        });
+        console.log('Candidate Votes:', candidateVotes); // Check candidate votes
 
-        // Save results to the election
+        const candidates = await Candidate.find({ _id: { $in: Object.keys(candidateVotes) } }).lean();
+
+        console.log('Candidates Found:', candidates); // Check candidates found
+
+        const results = candidates.map(candidate => ({
+            candidate: candidate.name,
+            votes: candidateVotes[candidate._id.toString()] || 0
+        }));
+
+        console.log('Final Results:', results); // Check final results
+
         election.results = results;
         await election.save();
 
-        res.json({ message: 'Results calculated and saved successfully.', results });
+        res.json({ message: 'Results calculated successfully.', results });
     } catch (err) {
-        console.error(err);
+        console.error('Error calculating results:', err);
         res.status(500).json({ message: 'Error calculating results.' });
     }
 };
 
-const recordVote = async (electionID, candidateId) => {
-    try {
-        const election = await Election.findOne({ electionID }).populate('results.candidate');
-        
-        if (!election) throw new Error('Election not found');
-        
-        // Find the candidate in the results array and increment votes
-        const candidateResult = election.results.find(result => result.candidate._id.equals(candidateId));
-        if (!candidateResult) throw new Error('Candidate not found in election');
-
-        candidateResult.votes += 1;
-
-        // Update vote percentages for all candidates
-        const totalVotes = election.results.reduce((acc, result) => acc + result.votes, 0);
-        election.results.forEach(result => {
-            result.percentage = totalVotes  ? (result.votes / totalVotes) * 100 : 0;
-        });
-
-        await election.save();
-        return election;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Error recording vote');
-    }
-};
-
-// Get results for an election
+// Get election results
 const getResults = async (req, res) => {
     const { electionID } = req.params;
 
@@ -217,6 +181,5 @@ module.exports = {
     castVote,
     countVotes,
     calculateResults,
-    recordVote,
     getResults
 };

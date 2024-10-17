@@ -5,16 +5,11 @@ const electionSchema = new Schema({
     title: {
         type: String,
         required: true,
-        unique: true
+        unique: true // Ensure unique titles for elections
     },
     description: {
         type: String,
         default: ''
-    },
-    electionID: { 
-        type: String, 
-        required: true,
-        unique: true
     },
     startDate: {
         type: Date,
@@ -32,33 +27,15 @@ const electionSchema = new Schema({
     },
     candidates: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Candidate',
-        required: true
+        ref: 'Candidate'
     }],
-    results: [{
-        candidate: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Candidate'
-        },
-        votes: {
-            type: Number,
-            default: 0
-        },
-        percentage: {
-            type: Number,
-            default: 0
-        }
-    }],
+    electionID: {
+        type: String,
+        required: true,
+        unique: true // Ensure unique election IDs if added
+    }
 }, {
     timestamps: true
-});
-
-// Middleware to set a default electionID if not provided
-electionSchema.pre('save', function(next) {
-    if (!this.electionID) {
-        this.electionID = `ELEC-${Date.now()}`;
-    }
-    next();
 });
 
 module.exports = mongoose.model('Election', electionSchema);

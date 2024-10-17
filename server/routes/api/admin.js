@@ -6,15 +6,15 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const ROLES_LIST = require('../../config/rolesList');
 
 // Admin route for managing users
-router.get('/users', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.getAllUsers);
+router.get('/users', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), adminController.getAllUsers);
 
 // Admin route for viewing audit logs
-router.get('/logs', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.viewAuditLogs);
+router.get('/logs', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), adminController.viewAuditLogs);
 
 // Admin route for system configuration
-router.post('/config', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.updateConfig);
+router.post('/config', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), adminController.updateConfig);
 
 //Adimin route for system stats
-router.get('/stats', verifyJWT, verifyRoles(ROLES_LIST.Admin), adminController.getSystemStats);
+router.get('/stats', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), adminController.getSystemStats);
 
 module.exports = router;

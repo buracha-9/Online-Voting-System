@@ -18,7 +18,7 @@ const verifyJWT = (req, res, next) => {
         // Adjust this to match your token payload structure
         req.user = decoded.UserInfo; // Assuming `UserInfo` contains userId or other user-related data
 
-        if (!req.user) {
+        if (!req.user || !req.user.userId) { // No need for voterId, just check for userId
             return res.status(403).json({ message: 'Invalid token structure, user info missing' });
         }
 

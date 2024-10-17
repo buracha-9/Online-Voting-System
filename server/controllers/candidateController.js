@@ -1,16 +1,16 @@
-const Candidate = require('../model/Candidate');
+const Candidate = require('../model/Candidate'); // Assuming the model is still called Candidate
 
-// Update a candidate
+// Update a nominee
 const updateCandidate = async (req, res) => {
     const { id } = req.params;
-    const { name, party } = req.body;
+    const { name, awardEventId } = req.body; // Changed 'category' to 'awardEventId'
 
     try {
         const candidate = await Candidate.findById(id);
-        if (!candidate) return res.status(404).json({ message: 'Candidate not found.' });
+        if (!candidate) return res.status(404).json({ message: 'Nominee not found.' });
 
         if (name) candidate.name = name;
-        if (party) candidate.party = party;
+        if (awardEventId) candidate.awardEventId = awardEventId; // Use awardEventId instead
 
         const result = await candidate.save();
         res.json(result);
@@ -20,29 +20,29 @@ const updateCandidate = async (req, res) => {
     }
 };
 
-// Remove a candidate
+// Remove a nominee
 const removeCandidate = async (req, res) => {
     const { id } = req.params;
 
     try {
         const candidate = await Candidate.findById(id);
-        if (!candidate) return res.status(404).json({ message: 'Candidate not found.' });
+        if (!candidate) return res.status(404).json({ message: 'Nominee not found.' });
 
         await candidate.remove();
-        res.json({ message: 'Candidate removed.' });
+        res.json({ message: 'Nominee removed.' });
     } catch (err) {
         console.error(err);
         res.sendStatus(500); // Internal server error
     }
 };
 
-// List candidates for an election
+// List nominees for an award event
 const listCandidates = async (req, res) => {
-    const { electionId } = req.params;
+    const { awardEventId } = req.params; // Changed electionId to awardEventId
 
     try {
-        const candidates = await Candidate.find({ electionId });
-        if (!candidates.length) return res.status(204).json({ message: 'No candidates found for this election.' });
+        const candidates = await Candidate.find({ awardEventId });
+        if (!candidates.length) return res.status(204).json({ message: 'No nominees found for this award event.' });
         res.json(candidates);
     } catch (err) {
         console.error(err);
@@ -50,13 +50,13 @@ const listCandidates = async (req, res) => {
     }
 };
 
-// Get a candidate by ID
+// Get a nominee by ID
 const getCandidateById = async (req, res) => {
     const { id } = req.params;
 
     try {
         const candidate = await Candidate.findById(id);
-        if (!candidate) return res.status(404).json({ message: 'Candidate not found.' });
+        if (!candidate) return res.status(404).json({ message: 'Nominee not found.' });
         res.json(candidate);
     } catch (err) {
         console.error(err);
@@ -65,8 +65,8 @@ const getCandidateById = async (req, res) => {
 };
 
 module.exports = {
-    updateCandidate,
-    removeCandidate,
-    listCandidates,
-    getCandidateById
+    updateCandidate, // Update a nominee's info
+    removeCandidate, // Remove a nominee
+    listCandidates,  // List all nominees for a specific award event
+    getCandidateById // Retrieve nominee details by their ID
 };

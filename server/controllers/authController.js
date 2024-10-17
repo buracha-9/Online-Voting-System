@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const Employee = require('../model/Employee'); 
+const Employee = require('../model/Register'); 
 
 const login = async (req, res) => {
     const { email, password } = req.body;
@@ -23,17 +23,16 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Prepare the roles and userId for the JWT payload
-        const roles = employee.roles;
-        const userId = employee._id;  // Use userId in the JWT token
+        // Prepare the user information for the JWT payload
+        const { _id: userId, roles } = employee;  // Destructure userId and roles
 
-        // Generate the access token with userId, email, and roles
+        // Generate the access token with userId and roles (no voterId)
         const accessToken = jwt.sign(
             { 
-                "UserInfo": { 
-                    "userId": userId,  // Include userId in the payload
-                    "email": employee.email, 
-                    "roles": roles 
+                UserInfo: { 
+                    userId,  // Include userId in the payload
+                    email, 
+                    roles 
                 } 
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -42,7 +41,7 @@ const login = async (req, res) => {
 
         // Generate the refresh token
         const refreshToken = jwt.sign(
-            { "userId": userId },  // Use userId for refresh token
+            { userId },  // Use userId for refresh token
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         );
@@ -56,14 +55,15 @@ const login = async (req, res) => {
             httpOnly: true, 
             secure: true, 
             sameSite: 'None', 
-            maxAge: 24 * 60 * 60 * 1000 
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
         });
 
         // Send the access token as a response
-        res.json({ accessToken });
+        res.status(200).json({ accessToken });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err); // Log the error for debugging
+        res.status(500).json({ message: 'An error occurred while processing your request.' });
     }
 };
 

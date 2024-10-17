@@ -1,6 +1,5 @@
 const AuditLog = require('../model/AuditLog');
-const Employee = require('../model/Employee'); // Or User model if you have both employees and other users
-
+const Employee = require('../model/Register');
 // View audit logs
 const viewAuditLogs = async (req, res) => {
     try {

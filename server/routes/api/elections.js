@@ -5,8 +5,7 @@ const verifyRoles = require('../../middleware/verifyRoles');
 const ROLES_LIST = require('../../config/rolesList');
 const electionController = require('../../controllers/electionController');
 
-// Get all elections (publicly accessible or requires authentication)
-// Uncomment verifyJWT if authentication is required
+// Get all elections
 router.get('/', electionController.getAllElections);
 
 // Create a new election (admin only)
@@ -18,8 +17,7 @@ router.put('/:id', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), electionController.
 // Delete an election (admin only)
 router.delete('/:id', verifyJWT, verifyRoles(ROLES_LIST.ADMIN), electionController.deleteElection);
 
-// Get a single election by ID (publicly accessible or requires authentication)
-// Uncomment verifyJWT if authentication is required
+// Get a single election by ID
 router.get('/:id', electionController.getElectionById);
 
 module.exports = router;

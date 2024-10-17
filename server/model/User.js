@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const ROLES = require('../config/rolesList');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     roles: {
         type: [String],
@@ -10,7 +11,14 @@ const userSchema = new mongoose.Schema({
         default: [ROLES.VOTER]
     },
     refreshToken: String,
+}, { timestamps: true });
+
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password') || this.isNew) {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+    }
+    next();
 });
 
-// Check if the model already exists before defining it
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);
