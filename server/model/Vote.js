@@ -6,7 +6,7 @@ const voteSchema = new mongoose.Schema({
         ref: 'Election', 
         required: true 
     },
-    candidateId: {  // Store the encrypted candidate ID
+    nomineeId: {  // Store the encrypted nominee ID
         type: String,  
         required: true 
     },
@@ -23,7 +23,7 @@ const voteSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Unique index to ensure one vote per user for a candidate in a specific election
-voteSchema.index({ electionId: 1, candidateId: 1, userId: 1 }, { unique: true });
+// Unique index to ensure one vote per user for a nominee in a specific election
+voteSchema.index({ electionID: 1, nomineeId: 1, userId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Vote', voteSchema);

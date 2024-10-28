@@ -24,12 +24,12 @@ const userSchema = new Schema({
         enum: ['Admin', 'Voter', 'Candidate'],
         default: ['Voter']
     },
-    userID: { // Renamed from employeeID to userID for consistency
+    userID: {
         type: String,
         required: true,
         unique: true
     },
-    dateRegistered: { // Renamed from dateJoined to dateRegistered for clarity
+    dateRegistered: { 
         type: Date,
         default: Date.now
     },

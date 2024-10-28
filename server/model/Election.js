@@ -25,9 +25,9 @@ const electionSchema = new Schema({
         type: Date,
         required: true
     },
-    candidates: [{
+    nominees: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Candidate'
+        ref: 'Nominee'
     }],
     electionID: {
         type: String,

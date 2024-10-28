@@ -1,5 +1,4 @@
 require('dotenv').config(); // Load environment variables from .env file
-
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -41,15 +40,15 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // Public Routes
 app.use('/', require('./server/routes/root'));
+app.use('/register', require('./server/routes/register'));
 app.use('/auth', require('./server/routes/auth'));
 app.use('/refresh', require('./server/routes/refresh'));
 app.use('/logout', require('./server/routes/logout'));
 
 // Protected Routes (JWT verification required)
 app.use(verifyJWT); // All routes below this line will require JWT verification
-app.use('/register', require('./server/routes/api/register'));
 app.use('/elections', require('./server/routes/api/elections'));
-app.use('/candidates', require('./server/routes/api/candidates'));
+app.use('/nominees', require('./server/routes/api/nominees'));
 app.use('/votes', require('./server/routes/api/vote'));
 app.use('/admin', require('./server/routes/api/admin'));
 

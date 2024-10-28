@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const Vote = require('../model/Vote');
 const Election = require('../model/Election');
-const Candidate = require('../model/Candidate');
+const Nominee = require('../model/Nominee'); // Changed Candidate to Nominee
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes for AES-256
 const IV_LENGTH = 16; // For AES, this is always 16 bytes
@@ -35,23 +35,23 @@ const decrypt = (text) => {
 
 // Cast a vote
 const castVote = async (req, res) => {
-    const { electionID, candidateId } = req.body;
+    const { electionID, nomineeId } = req.body; // Changed candidateId to nomineeId
     const { userId } = req.user;  // Get userId from the token
 
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required.' });
     }
 
-    if (!electionID || !candidateId) {
-        return res.status(400).json({ message: 'Election ID and candidate ID are required.' });
+    if (!electionID || !nomineeId) { // Updated check
+        return res.status(400).json({ message: 'Election ID and nominee ID are required.' });
     }
 
     try {
         const election = await Election.findById(electionID);
         if (!election) return res.status(404).json({ message: 'Election not found.' });
 
-        const candidate = await Candidate.findById(candidateId);
-        if (!candidate) return res.status(404).json({ message: 'Candidate not found.' });
+        const nominee = await Nominee.findById(nomineeId); // Updated to Nominee
+        if (!nominee) return res.status(404).json({ message: 'Nominee not found.' });
 
         const now = new Date();
         if (now < election.startDate || now > election.endDate) {
@@ -62,19 +62,19 @@ const castVote = async (req, res) => {
         const existingVote = await Vote.findOne({ electionID, userId });
         if (existingVote) return res.status(403).json({ message: 'You have already voted in this election.' });
 
-        const encryptedCandidateId = encrypt(candidateId.toString());
+        const encryptedNomineeId = encrypt(nomineeId.toString()); // Updated encryption
 
         const vote = new Vote({
             electionID,
-            candidateId: encryptedCandidateId,
+            nomineeId: encryptedNomineeId, // Changed candidateId to nomineeId
             voteDate: new Date(),
             userId,  // Use userId instead of voterId
         });
 
         await vote.save();
 
-        // Increment the total votes for the candidate
-        await Candidate.findByIdAndUpdate(candidateId, { $inc: { totalVotes: 1 } }, { new: true });
+        // Increment the total votes for the nominee
+        await Nominee.findByIdAndUpdate(nomineeId, { $inc: { totalVotes: 1 } }, { new: true }); // Updated to Nominee
 
         res.status(201).json({ message: 'Vote cast successfully.' });
     } catch (err) {
@@ -82,7 +82,8 @@ const castVote = async (req, res) => {
         res.sendStatus(500);
     }
 };
-//count votes
+
+// Count votes
 const countVotes = async (electionID) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(electionID)) {
@@ -90,25 +91,24 @@ const countVotes = async (electionID) => {
         }
 
         const voteCounts = await Vote.aggregate([
-            { $match: { electionId: new mongoose.Types.ObjectId(electionID) } },
-            { $group: { _id: "$encryptedCandidateId", count: { $sum: 1 } } }
-        ]);
+            { $match: { electionID: new mongoose.Types.ObjectId(electionID) } }, // Ensure it is `electionID` not `electionId`
+            { $group: { _id: "$nomineeId", count: { $sum: 1 } } } // Ensure you group by the correct field name
+        ]);        
 
         console.log('Vote Counts:', voteCounts); // Check what is being returned
 
         return voteCounts.map(({ _id, count }) => {
             try {
-                const candidateId = decrypt(_id);
+                const nomineeId = decrypt(_id.toString()); // Ensure _id is converted to string if needed
                 return {
-                    candidateId,
+                    nomineeId,
                     votes: count
                 };
             } catch (decryptionError) {
-                console.error(`Decryption error for candidate ID ${_id}:`, decryptionError);
-                return { candidateId: null, votes: count }; // Handle decryption failure
+                console.error(`Decryption error for nominee ID ${_id}:`, decryptionError);
+                return { nomineeId: null, votes: count };
             }
-            console.log('Decrypted Candidate ID:', candidateId);
-        });
+        });        
 
     } catch (err) {
         console.error('Error counting votes:', err);
@@ -128,22 +128,22 @@ const calculateResults = async (req, res) => {
         const voteCounts = await countVotes(electionID);
         console.log('Vote Counts Returned:', voteCounts); // Check what is returned from countVotes
 
-        const candidateVotes = {};
-        for (const { candidateId, votes } of voteCounts) {
-            if (candidateId) {
-                candidateVotes[candidateId] = (candidateVotes[candidateId] || 0) + votes;
+        const nomineeVotes = {}; // Changed candidateVotes to nomineeVotes
+        for (const { nomineeId, votes } of voteCounts) { // Updated to nomineeId
+            if (nomineeId) {
+                nomineeVotes[nomineeId] = (nomineeVotes[nomineeId] || 0) + votes; // Updated to nomineeVotes
             }
         }
 
-        console.log('Candidate Votes:', candidateVotes); // Check candidate votes
+        console.log('Nominee Votes:', nomineeVotes); // Check nominee votes
 
-        const candidates = await Candidate.find({ _id: { $in: Object.keys(candidateVotes) } }).lean();
+        const nominees = await Nominee.find({ _id: { $in: Object.keys(nomineeVotes) } }).lean(); // Updated to Nominee
 
-        console.log('Candidates Found:', candidates); // Check candidates found
+        console.log('Nominees Found:', nominees); // Check nominees found
 
-        const results = candidates.map(candidate => ({
-            candidate: candidate.name,
-            votes: candidateVotes[candidate._id.toString()] || 0
+        const results = nominees.map(nominee => ({
+            nominee: nominee.name, // Changed candidate to nominee
+            votes: nomineeVotes[nominee._id.toString()] || 0 // Updated to nomineeVotes
         }));
 
         console.log('Final Results:', results); // Check final results

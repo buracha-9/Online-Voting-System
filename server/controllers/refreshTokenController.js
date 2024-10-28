@@ -1,4 +1,4 @@
-const User = require('../model/User');
+const User = require('../model/Register');
 const jwt = require('jsonwebtoken');
 
 // Helper function to verify the JWT

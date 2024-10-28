@@ -1,14 +1,17 @@
 const mongoose = require('mongoose'); 
-const Schema = mongoose.Schema;
 
-const candidateSchema = new mongoose.Schema({
+const nomineeSchema = new mongoose.Schema({
     name: { 
         type: String, 
         required: true 
     },
+    category: { // Add this field if you want to use it
+        type: String, 
+        required: true
+    },
     electionId: { // Referencing the Election directly
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Election', // Updated to reflect the Election context
+        ref: 'Election',
         required: true 
     },
     totalVotes: {
@@ -24,24 +27,24 @@ const candidateSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-// Optional virtual to calculate candidate rank based on votes
-candidateSchema.virtual('rank').get(function() {
+// Optional virtual to calculate nominee rank based on votes
+nomineeSchema.virtual('rank').get(function() {
     if (this.totalVotes > 100) {
-        return 'Top'; // Candidates with more than 100 votes are 'Top'
+        return 'Top'; // Nominees with more than 100 votes are 'Top'
     }
     return 'Regular'; // Default rank for others
 });
 
 // Method to increment totalVotes
-candidateSchema.methods.incrementVotes = function() {
+nomineeSchema.methods.incrementVotes = function() {
     this.totalVotes += 1; // Increments the vote count by 1
-    return this.save(); // Saves the updated candidate document
+    return this.save(); // Saves the updated nominee document
 };
 
-// Method to add an award to the candidate
-candidateSchema.methods.addAward = function(award) {
+// Method to add an award to the nominee
+nomineeSchema.methods.addAward = function(award) {
     this.awards.push(award); // Adds the specified award to the awards array
-    return this.save(); // Saves the updated candidate document
+    return this.save(); // Saves the updated nominee document
 };
 
-module.exports = mongoose.model('Candidate', candidateSchema);
+module.exports = mongoose.model('Nominee', nomineeSchema); // Export as 'Nominee'

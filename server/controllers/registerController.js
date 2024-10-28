@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const User = require('../model/User'); // General-purpose user model
+const User = require('../model/Register');
 
 // Get all users (e.g., voters or admins)
 const getAllUsers = async (req, res) => {
@@ -18,6 +18,9 @@ const getAllUsers = async (req, res) => {
 // Register a new user (e.g., voter or admin)
 const registerUser = async (req, res) => {
     const { firstname, lastname, email, password, userID, role, dateRegistered } = req.body;
+
+    // Log the request body for debugging
+    console.log('Request body:', req.body);
 
     // Validate required fields
     if (!firstname || !lastname || !email || !password || !userID) {
@@ -48,8 +51,8 @@ const registerUser = async (req, res) => {
 
         res.status(201).json(result); // Respond with the created user
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error("Registration Error:", err.message);
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 };
 

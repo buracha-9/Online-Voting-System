@@ -1,20 +1,22 @@
 const mongoose = require('mongoose');
 const Election = require('../model/Election'); 
-const Candidate = require('../model/Candidate');
+const Nominee = require('../model/Nominee'); // Updated import
 
 // Get all elections
 const getAllElections = async (req, res) => {
     try {
-        const elections = await Election.find();
-        if (!elections.length) return res.status(204).json({ message: 'No elections found.' });
+        const elections = await Election.find().populate('nominees'); // Populate nominees in each election
+        if (!elections.length) {
+            return res.status(204).json({ message: 'No elections found.' });
+        }
         res.json(elections);
     } catch (err) {
-        console.error(err);
+        console.error('Error fetching elections:', err);
         res.sendStatus(500);
     }
 };
 
-//create new election
+// Create new election
 const createNewElection = async (req, res) => {
     const { title, description, nominees, startDate, endDate } = req.body;
 
@@ -27,6 +29,7 @@ const createNewElection = async (req, res) => {
         if (existingElection) {
             return res.status(409).json({ message: 'Election with this title already exists.' });
         }
+        
         // Assigning a unique electionID
         const electionID = `ELECTION-${Date.now()}`;
 
@@ -35,7 +38,7 @@ const createNewElection = async (req, res) => {
             description,
             startDate,
             endDate,
-            candidates: [],
+            nominees: [], // Initially empty; nominees will be populated later
             electionID
         });
 
@@ -43,28 +46,32 @@ const createNewElection = async (req, res) => {
 
         const savedElection = await election.save();
 
-        // Automatically create candidates based on nominees provided
+        // Automatically create nominees based on nominees provided
         if (nominees && nominees.length > 0) {
             const nomineePromises = nominees.map(nomineeData => {
-                const nominee = new Candidate({
+                const nominee = new Nominee({
                     name: nomineeData.name,
-                    electionId: savedElection._id, // Link the candidate to the election
-                    category: nomineeData.category,
+                    electionId: savedElection._id, // Link the nominee to the election
+                    category: nomineeData.category // Ensure category is included
                 });
                 return nominee.save();
             });
 
             const savedNominees = await Promise.all(nomineePromises);
-            savedElection.candidates = savedNominees.map(nominee => nominee._id); 
+            savedElection.nominees = savedNominees.map(nominee => nominee._id); 
             await savedElection.save();
         }
 
-        res.status(201).json({ election: savedElection });
+        // Populate nominees for the response
+        const populatedElection = await Election.findById(savedElection._id).populate('nominees');
+        
+        res.status(201).json({ election: populatedElection });
     } catch (err) {
         console.error('Error creating election:', err);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 // Update an election
 const updateElection = async (req, res) => {
     const { id } = req.params;
@@ -75,6 +82,7 @@ const updateElection = async (req, res) => {
     }
 
     try {
+        // Update basic election details
         const updatedElection = await Election.findByIdAndUpdate(
             id,
             { title, description, startDate, endDate },
@@ -84,22 +92,31 @@ const updateElection = async (req, res) => {
         if (!updatedElection) return res.status(404).json({ message: 'Election not found.' });
 
         if (nominees && nominees.length > 0) {
-            await Candidate.deleteMany({ electionId: id });
-            const nomineePromises = nominees.map(nomineeData => {
-                const nominee = new Candidate({
+            // Delete old nominees associated with this election
+            await Nominee.deleteMany({ electionId: id });
+
+            // Save new nominees
+            const nomineePromises = nominees.map(async nomineeData => {
+                const nominee = new Nominee({
                     name: nomineeData.name,
                     electionId: updatedElection._id,
                     category: nomineeData.category,
                 });
-                return nominee.save();
+                try {
+                    return await nominee.save();
+                } catch (error) {
+                    console.error("Error saving nominee:", error);
+                }
             });
             await Promise.all(nomineePromises);
         }
 
-        res.json(updatedElection);
+        // Retrieve the updated election with populated nominees
+        const populatedElection = await Election.findById(updatedElection._id).populate('nominees');
+        res.json(populatedElection);
     } catch (err) {
         console.error(err);
-        res.sendStatus(500);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -115,9 +132,9 @@ const deleteElection = async (req, res) => {
         const result = await Election.findByIdAndDelete(id);
         if (!result) return res.status(404).json({ message: 'Election not found.' });
 
-        const deleteResult = await Candidate.deleteMany({ electionId: id });
-        console.log(`${deleteResult.deletedCount} candidates deleted.`);
-        res.json({ message: 'Election and associated candidates deleted.' });
+        const deleteResult = await Nominee.deleteMany({ electionId: id }); // Changed from Candidate to Nominee
+        console.log(`${deleteResult.deletedCount} nominees deleted.`);
+        res.json({ message: 'Election and associated nominees deleted.' });
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -129,7 +146,7 @@ const getElectionById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const election = await Election.findById(id); // Get by ID directly
+        const election = await Election.findById(id).populate('nominees'); // Populate nominees
         if (!election) return res.status(404).json({ message: 'Election not found.' });
 
         res.json(election);
@@ -138,6 +155,7 @@ const getElectionById = async (req, res) => {
         res.sendStatus(500);
     }
 };
+
 
 module.exports = {
     getAllElections,
