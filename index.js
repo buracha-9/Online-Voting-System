@@ -50,7 +50,6 @@ app.use(verifyJWT); // All routes below this line will require JWT verification
 app.use('/elections', require('./server/routes/api/elections'));
 app.use('/nominees', require('./server/routes/api/nominees'));
 app.use('/votes', require('./server/routes/api/vote'));
-app.use('/admin', require('./server/routes/api/admin'));
 
 // Error handling middleware
 app.use(errorHandler);

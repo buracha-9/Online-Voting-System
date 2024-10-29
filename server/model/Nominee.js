@@ -5,7 +5,7 @@ const nomineeSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    category: { // Add this field if you want to use it
+    nominatedWork: { // Add this field if you want to use it
         type: String, 
         required: true
     },

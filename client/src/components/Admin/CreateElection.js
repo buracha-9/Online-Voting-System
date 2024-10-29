@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 import axios from 'axios';
 
 const CreateElection = () => {
@@ -6,10 +7,11 @@ const CreateElection = () => {
     const [description, setDescription] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [nominees, setNominees] = useState([{ name: '', category: '' }]);
+    const [nominees, setNominees] = useState([{ name: '', nominatedWork: '' }]);
     const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // State for success message
-    const [loading, setLoading] = useState(false); // State for loading
+    const [successMessage, setSuccessMessage] = useState(''); // New state for success message
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleNomineeChange = (index, event) => {
         const newNominees = [...nominees];
@@ -18,14 +20,14 @@ const CreateElection = () => {
     };
 
     const handleAddNominee = () => {
-        setNominees([...nominees, { name: '', category: '' }]);
+        setNominees([...nominees, { name: '', nominatedWork: '' }]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMessage(''); // Reset error message
-        setSuccessMessage(''); // Reset success message
-        setLoading(true); // Start loading
+        setErrorMessage('');
+        setSuccessMessage(''); // Clear success message
+        setLoading(true);
 
         // Validate date input
         if (new Date(startDate) >= new Date(endDate)) {
@@ -34,8 +36,7 @@ const CreateElection = () => {
             return;
         }
 
-        // Retrieve token from localStorage
-        const token = localStorage.getItem('token'); // Use "token" as in Login component
+        const token = localStorage.getItem('token');
 
         try {
             const response = await axios.post(
@@ -49,12 +50,22 @@ const CreateElection = () => {
             );
 
             console.log('Election created:', response.data);
+
+            // Clear form fields
             setTitle('');
             setDescription('');
             setStartDate('');
             setEndDate('');
-            setNominees([{ name: '', category: '' }]);
-            setSuccessMessage('Election created successfully!'); // Set success message
+            setNominees([{ name: '', nominatedWork: '' }]);
+            
+            // Set success message
+            setSuccessMessage('Election created successfully!');
+            
+            // Delay navigation for 3 seconds
+            setTimeout(() => {
+                navigate('/admin');
+            }, 3000); // 3000 ms = 3 seconds
+
         } catch (err) {
             console.error('Error creating election:', err);
             if (err.response) {
@@ -67,12 +78,13 @@ const CreateElection = () => {
                 setErrorMessage('Error creating election. Please check your network connection.');
             }
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
 
     return (
         <div className="create-election-container">
+            <Link to="/login" className="login-link">Login</Link> {/* Login link at the top */}
             <h2>Create New Election</h2>
             {errorMessage && <p className="error">{errorMessage}</p>}
             {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
@@ -123,10 +135,10 @@ const CreateElection = () => {
                             required
                         />
                         <input
-                            name="category"
-                            value={nominee.category}
+                            name="nominatedWork"
+                            value={nominee.nominatedWork}
                             onChange={(e) => handleNomineeChange(index, e)}
-                            placeholder="Nominee Category"
+                            placeholder="Nominee Work"
                             required
                         />
                     </div>

@@ -65,7 +65,7 @@ const ElectionDetails = () => {
                     election.nominees.map((nominee) => (
                         <li key={nominee._id}>
                             <p><strong>Name:</strong> {nominee.name}</p>
-                            <p><strong>Category:</strong> {nominee.category}</p> 
+                            <p><strong>Nominated Work:</strong> {nominee.nominatedWork}</p> 
                         </li>
                     ))
                 ) : (

@@ -52,7 +52,7 @@ const createNewElection = async (req, res) => {
                 const nominee = new Nominee({
                     name: nomineeData.name,
                     electionId: savedElection._id, // Link the nominee to the election
-                    category: nomineeData.category // Ensure category is included
+                    nominatedWork: nomineeData.nominatedWork // Ensure category is included
                 });
                 return nominee.save();
             });
@@ -100,7 +100,7 @@ const updateElection = async (req, res) => {
                 const nominee = new Nominee({
                     name: nomineeData.name,
                     electionId: updatedElection._id,
-                    category: nomineeData.category,
+                    nominatedWork: nomineeData.nominatedWork,
                 });
                 try {
                     return await nominee.save();
