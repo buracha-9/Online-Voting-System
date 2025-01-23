@@ -1,0 +1,71 @@
+/* AboutPage.css */
+
+.about-page {
+    font-family: 'Arial', sans-serif;
+    color: #2c2c2c;
+    background-color: #f9f9f9;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  
+  .about-page__section {
+    background-color: #eaf4f4;
+    border: 1px solid #c5dddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .about-page__intro {
+    text-align: center;
+  }
+  
+  .about-page__title {
+    font-size: 2rem;
+    color: #015958;
+    margin-bottom: 15px;
+  }
+  
+  .about-page__subtitle {
+    font-size: 1.5rem;
+    color: #015958;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  
+  .about-page__text {
+    font-size: 1rem;
+    color: #333;
+    margin: 10px 0;
+  }
+  
+  .about-page__services-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .about-page__services-item {
+    margin-bottom: 15px;
+    font-size: 1rem;
+    color: #444;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 1px solid #c5dddd;
+  }
+  
+  .about-page__contact-link {
+    color: #015958;
+    text-decoration: underline;
+  }
+  
+  .about-page__contact-link:hover {
+    color: #013f3f;
+  }
+  
+  .about-page__section.about-page__contact {
+    border: 2px solid #015958;
+  }
+  

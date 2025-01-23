@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import '../Styles/CreateElection.css';
 
 const CreateElection = () => {
     const [title, setTitle] = useState('');
@@ -9,7 +10,7 @@ const CreateElection = () => {
     const [endDate, setEndDate] = useState('');
     const [nominees, setNominees] = useState([{ name: '', nominatedWork: '' }]);
     const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // New state for success message
+    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ const CreateElection = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage('');
-        setSuccessMessage(''); // Clear success message
+        setSuccessMessage('');
         setLoading(true);
 
         // Validate date input
@@ -37,9 +38,22 @@ const CreateElection = () => {
         }
 
         const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        // Validate nominees' input
+        for (const nominee of nominees) {
+            if (!nominee.name.trim() || !nominee.nominatedWork.trim()) {
+                setErrorMessage('All nominee fields must be filled out.');
+                setLoading(false);
+                return;
+            }
+        }
 
         try {
-            const response = await axios.post(
+            await axios.post(
                 'http://localhost:3500/elections',
                 { title, description, startDate, endDate, nominees },
                 {
@@ -49,8 +63,6 @@ const CreateElection = () => {
                 }
             );
 
-            console.log('Election created:', response.data);
-
             // Clear form fields
             setTitle('');
             setDescription('');
@@ -59,23 +71,23 @@ const CreateElection = () => {
             setNominees([{ name: '', nominatedWork: '' }]);
             
             // Set success message
-            setSuccessMessage('Election created successfully!');
+            setSuccessMessage('Election created successfully! You will be redirected to the admin panel shortly.');
             
             // Delay navigation for 3 seconds
             setTimeout(() => {
                 navigate('/admin');
-            }, 3000); // 3000 ms = 3 seconds
+            }, 3000);
 
         } catch (err) {
             console.error('Error creating election:', err);
             if (err.response) {
                 if (err.response.status === 409) {
-                    setErrorMessage('An election with this title already exists.');
+                    setErrorMessage('An election with this title already exists. Please choose a different title.');
                 } else {
-                    setErrorMessage(err.response.data.message || 'Error creating election. Please try again.');
+                    setErrorMessage(err.response.data.message || 'Error creating election. Please try again later.');
                 }
             } else {
-                setErrorMessage('Error creating election. Please check your network connection.');
+                setErrorMessage('Error creating election. Please check your network connection and try again.');
             }
         } finally {
             setLoading(false);
@@ -84,10 +96,10 @@ const CreateElection = () => {
 
     return (
         <div className="create-election-container">
-            <Link to="/login" className="login-link">Login</Link> {/* Login link at the top */}
+            <Link to="/login" className="login-link">Login</Link>
             <h2>Create New Election</h2>
             {errorMessage && <p className="error">{errorMessage}</p>}
-            {successMessage && <p className="success">{successMessage}</p>} {/* Display success message */}
+            {successMessage && <p className="success">{successMessage}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
                     <input

@@ -1,0 +1,139 @@
+/* General styling for the election details page */
+.election-details-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+h1 {
+    font-size: 2.4rem;
+    color: #ff6a00;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 30px 0 15px;
+}
+
+/* Styling for the list of nominees */
+.nominee-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+/* Individual nominee item styling */
+.nominee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.nominee-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+/* Styling for the nominee's name */
+.nominee-name {
+    font-size: 1.3rem; /* Increased font size for visibility */
+    font-weight: 700; /* Bold font for emphasis */
+    color: #333;
+    margin-right: 10px; /* Adjust spacing if needed */
+}
+
+/* Styling for the vote button */
+.nominee-item button {
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    width: auto;
+    min-width: 80px;
+}
+
+.nominee-item button:hover {
+    background: linear-gradient(135deg, #ee0979, #ff6a00);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.nominee-item button:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nominee-item button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Styling for success and error messages */
+.success, .error {
+    color: #ee0979;
+    margin-top: 15px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Styling for the share buttons */
+.share-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.share-button {
+    padding: 8px;
+    background-color: #ff6a00;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.share-button:hover {
+    background-color: #ee0979;
+    transform: scale(1.08);
+}
+
+@media (max-width: 600px) {
+    .nominee-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    .nominee-item button,
+    .share-button {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}

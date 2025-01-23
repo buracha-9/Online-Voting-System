@@ -35,14 +35,14 @@ const decrypt = (text) => {
 
 // Cast a vote
 const castVote = async (req, res) => {
-    const { electionID, nomineeId } = req.body; // Changed candidateId to nomineeId
-    const { userId } = req.user;  // Get userId from the token
+    const { electionID, nomineeId } = req.body;
+    const { userId } = req.user;
 
     if (!userId) {
         return res.status(400).json({ message: 'User ID is required.' });
     }
 
-    if (!electionID || !nomineeId) { // Updated check
+    if (!electionID || !nomineeId) {
         return res.status(400).json({ message: 'Election ID and nominee ID are required.' });
     }
 
@@ -50,31 +50,34 @@ const castVote = async (req, res) => {
         const election = await Election.findById(electionID);
         if (!election) return res.status(404).json({ message: 'Election not found.' });
 
-        const nominee = await Nominee.findById(nomineeId); // Updated to Nominee
-        if (!nominee) return res.status(404).json({ message: 'Nominee not found.' });
-
         const now = new Date();
-        if (now < election.startDate || now > election.endDate) {
-            return res.status(403).json({ message: 'Election is not currently active.' });
+        if (now < election.startDate) {
+            return res.status(403).json({ message: 'Election has not started yet.' });
         }
+        if (now > election.endDate) {
+            return res.status(403).json({ message: 'Election deadline has passed. Voting is no longer allowed.' });
+        }
+
+        const nominee = await Nominee.findById(nomineeId);
+        if (!nominee) return res.status(404).json({ message: 'Nominee not found.' });
 
         // Check if the user has already voted in this election
         const existingVote = await Vote.findOne({ electionID, userId });
         if (existingVote) return res.status(403).json({ message: 'You have already voted in this election.' });
 
-        const encryptedNomineeId = encrypt(nomineeId.toString()); // Updated encryption
+        const encryptedNomineeId = encrypt(nomineeId.toString());
 
         const vote = new Vote({
             electionID,
-            nomineeId: encryptedNomineeId, // Changed candidateId to nomineeId
-            voteDate: new Date(),
-            userId,  // Use userId instead of voterId
+            nomineeId: encryptedNomineeId,
+            voteDate: now,
+            userId,
         });
 
         await vote.save();
 
         // Increment the total votes for the nominee
-        await Nominee.findByIdAndUpdate(nomineeId, { $inc: { totalVotes: 1 } }, { new: true }); // Updated to Nominee
+        await Nominee.findByIdAndUpdate(nomineeId, { $inc: { totalVotes: 1 } }, { new: true });
 
         res.status(201).json({ message: 'Vote cast successfully.' });
     } catch (err) {

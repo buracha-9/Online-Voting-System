@@ -1,0 +1,156 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.admin-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+h2 {
+  text-align: center;
+  color: #ff6600;
+  margin-bottom: 20px;
+}
+
+.dashboard-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.create-election-button,
+.view-users-button {
+  background-color: #ff6600;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.create-election-button:hover,
+.view-users-button:hover {
+  background-color: #e65500;
+}
+
+.error {
+  text-align: center;
+  color: red;
+  margin-bottom: 20px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+h3 {
+  color: #333333;
+  border-bottom: 2px solid #ff6600;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+
+.elections-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-weight: bold;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.header-title,
+.header-end-date,
+.header-result {
+  flex: 2;
+  padding-left: 10px; /* Ensures alignment with content */
+}
+
+.header-icon {
+  flex: 1;
+}
+
+.elections-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 0;
+}
+
+.election-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.election-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.election-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.election-title {
+  font-size: 18px;
+  color: #333333;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+}
+
+.election-title:hover {
+  text-decoration: underline;
+}
+
+.election-end-date {
+  font-size: 14px;
+  color: #555555;
+  text-align: center;
+}
+
+.election-icon {
+  color: #ff6600;
+  font-size: 24px;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.election-icon:hover {
+  color: #e65500;
+}
+
+.result-button {
+  background-color: #ff6600;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 10px auto 0;
+  display: block;
+  width: fit-content;
+}
+
+.result-button:hover {
+  background-color: #e65500;
+}

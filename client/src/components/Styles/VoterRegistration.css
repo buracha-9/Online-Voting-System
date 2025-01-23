@@ -1,0 +1,89 @@
+/* VoterRegistration.css */
+
+.registration-container {
+    max-width: 600px; /* Increased width */
+    margin: 50px auto;
+    padding: 25px; /* Slightly increased padding */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.registration-form div {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px; /* Slightly increased padding */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px; /* Increased padding for a larger button */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: #d9534f; /* Bootstrap danger color */
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.success-message {
+    color: #5cb85c; /* Bootstrap success color */
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.password-input-container {
+    position: relative;
+  }
+  
+  .password-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    font-size: 1.1rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ff6a00;
+  }

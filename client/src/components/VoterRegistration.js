@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import './Styles/VoterRegistration.css';
 
 const VoterRegistration = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +17,8 @@ const VoterRegistration = () => {
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,11 +28,19 @@ const VoterRegistration = () => {
     });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Error: Passwords do not match. Please check and try again.');
       return;
     }
 
@@ -40,11 +53,10 @@ const VoterRegistration = () => {
         userID: formData.userID || `user-${Date.now()}`,
       };
 
-      // Include full URL with localhost:3500
       const response = await axios.post('http://localhost:3500/register', userData);
 
       if (response.status === 201) {
-        setSuccess('Registration successful!');
+        setSuccess('Success: Registration completed! You can now log in.');
         setError('');
         setTimeout(() => {
           navigate('/login');
@@ -53,9 +65,9 @@ const VoterRegistration = () => {
     } catch (err) {
       console.error("Error details:", err);
       if (err.response && err.response.data && err.response.data.message) {
-        setError(`Registration failed: ${err.response.data.message}`);
+        setError(`Error: Registration failed - ${err.response.data.message}. Please try again.`);
       } else {
-        setError('Registration failed: An unknown error occurred.');
+        setError('Error: Registration failed - an unknown error occurred. Please try again later.');
       }
     }
   };
@@ -107,23 +119,37 @@ const VoterRegistration = () => {
         </div>
         <div>
           <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="password-input-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <FontAwesomeIcon
+              icon={showPassword ? faEyeSlash : faEye}
+              className="password-icon"
+              onClick={togglePasswordVisibility}
+            />
+          </div>
         </div>
         <div>
           <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <div className="password-input-container">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            <FontAwesomeIcon
+              icon={showConfirmPassword ? faEyeSlash : faEye}
+              className="password-icon"
+              onClick={toggleConfirmPasswordVisibility}
+            />
+          </div>
         </div>
         <button type="submit">Register</button>
       </form>

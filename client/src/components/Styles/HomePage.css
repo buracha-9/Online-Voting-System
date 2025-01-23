@@ -1,0 +1,216 @@
+/* HomePage.css */
+
+/* Using Google Fonts for better font options */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600;700&display=swap');
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    color: #333;
+}
+.homepage {
+    font-family: 'Poppins', sans-serif; /* Choose your preferred font here */
+    color: #fff;
+}
+
+/* Welcome Section */
+.welcome-section {
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    text-align: center;
+    padding: 100px 20px;
+    color: #fff;
+}
+
+.welcome-content h1 {
+    font-size: 3rem;
+    font-weight: 900; /* Use a bolder weight for headings */
+}
+
+.welcome-content p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    opacity: 0.9; /* Slightly transparent for better contrast */
+}
+
+/* Button Styling */
+.learn-more-btn {
+    background-color: #ff4081;
+    border: none;
+    color: #fff;
+    padding: 12px 20px; /* Adjusted padding for a smaller button */
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 30px; /* More rounded edges for a modern look */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Add transition for hover effects */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    max-width: 200px; /* Limit the maximum width */
+    margin: 0 auto; /* Center the button */
+}
+
+.learn-more-btn:hover {
+    background-color: #ff6a6a; /* Lighter shade for hover effect */
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Feature Section Container */
+.feature-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 40px 20px;
+    background-color: #fff;
+}
+
+/* Feature Item Styling */
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between image and text */
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0; /* Light divider between features */
+}
+
+/* Feature Image Styling */
+.feature-image {
+    flex: 0 0 100px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ff6a00;
+}
+
+/* Feature Text Styling */
+.feature-text {
+    flex: 1;
+}
+
+/* Specific styles for feature description */
+.feature .feature-description {
+    font-size: 1.1rem; /* Set a font size for the description */
+    font-weight: bold;
+    color: #555; /* Slightly darker color for contrast */
+    line-height: 1.5; /* Adjust line height for readability */
+    margin-top: 5px; /* Add some space above the description */
+    opacity: 0.8; /* Slightly transparent for a softer look */
+}
+
+
+.feature:hover {
+    background-color: #f9f9f9; /* Light background on hover for better interactivity */
+}
+.feature h3 {
+    font-size: 1.8rem;
+    color: #ff6a00;
+    margin: 0;
+    font-weight: 600;
+}
+
+.feature p {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+/* Button within Feature Section */
+.feature-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #ff6a00;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.feature-btn:hover {
+    background-color: #ee0979;
+}
+
+/* Responsive Design for Larger Screens */
+@media (min-width: 768px) {
+    .feature-section {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .feature {
+        flex: 1 1 calc(50% - 20px); /* Two features per row with gap */
+        gap: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .feature-section {
+        gap: 40px;
+        padding: 60px 40px;
+    }
+    
+    .feature h3 {
+        font-size: 2rem;
+    }
+}
+
+/* About Section */
+.about-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    color: #fff;
+    border-radius: 10px;
+    margin: 40px auto;
+    max-width: 1200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.about-content {
+    max-width: 500px;
+    text-align: left;
+}
+
+.about-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 700; /* Use a bolder weight for headings */
+}
+
+.about-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    opacity: 0.9; /* Slightly transparent for better contrast */
+}
+
+.about-image {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.about-image:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive layout for larger screens */
+@media (min-width: 768px) {
+    .feature-section {
+        flex-direction: column; /* Keep vertical layout on larger screens */
+    }
+
+    .feature {
+        margin: 0 10px;
+        text-align: left; /* Align text to left */
+    }
+}

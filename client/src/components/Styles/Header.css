@@ -1,0 +1,32 @@
+/* Shared Header and Footer Styles */
+.header, .footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.header nav, .footer .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 1.1rem;
+}
+
+.header a, .footer .footer-links a {
+    color: #ff6a00;
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: color 0.3s ease;
+}
+
+.header a:hover, .footer .footer-links a:hover {
+    color: #ee0979;
+}
+
+/* Footer-specific text styling */
+.footer p {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #aaa;
+}

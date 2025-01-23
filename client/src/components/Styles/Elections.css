@@ -1,0 +1,59 @@
+/* Elections.css */
+
+.elections-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-radius: 12px; /* Rounded corners for a modern look */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+
+.elections-container h1 {
+    font-size: 2.5rem; /* Larger heading for better emphasis */
+    font-weight: 700; /* Bolder font weight */
+    color: #ff6a00;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase; /* Uppercase for a modern touch */
+    letter-spacing: 1px; /* Slight spacing between letters */
+}
+
+.prev {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff6a00;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase; /* Uppercase for consistency */
+}
+
+.elections-container h2 {
+    font-size: 1.8rem;
+    font-weight: 600; /* Slightly lighter than h1 */
+    color: #333;
+    margin: 30px 0 20px;
+    text-align: center;
+    border-bottom: 2px solid #ff6a00; /* Underline for emphasis */
+    padding-bottom: 10px; /* Padding to separate from content */
+}
+
+.elections-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between cards */
+    justify-content: center; /* Center the cards */
+    padding: 20px; /* Padding around the list for better layout */
+}
+
+.error {
+    color: #ee0979;
+    font-size: 1.1rem; /* Slightly larger error text */
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500; /* Medium weight for better readability */
+    background-color: rgba(238, 9, 121, 0.1); /* Light background for error messages */
+    padding: 10px; /* Padding for the error box */
+    border-radius: 8px; /* Rounded corners for the error box */
+}

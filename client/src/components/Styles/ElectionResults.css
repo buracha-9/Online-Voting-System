@@ -1,0 +1,67 @@
+/* General page styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure the body spans the full viewport height */
+    background-color: #f8f9fa; /* Light background */
+  }
+  
+  header {
+    background-color: #ff6600; /* Orange background */
+    color: #ffffff; /* White text */
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  main {
+    flex: 1; /* Allow the main content to grow and take up available space */
+    padding: 20px;
+  }
+  
+  .election-results-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff; /* White background */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #ff6600; /* Orange color */
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+  
+  /* Results list styling */
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  li strong {
+    color: #ff6600; /* Orange for labels */
+    font-weight: bold;
+  }
+  

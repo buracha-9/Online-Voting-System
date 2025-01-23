@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import '../Styles/ElectionDetails.css';
 
 const ElectionDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [election, setElection] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false); // State for delete confirmation
 
     useEffect(() => {
         const fetchElectionDetails = async () => {
@@ -20,7 +23,7 @@ const ElectionDetails = () => {
                 });
                 setElection(response.data);
             } catch (err) {
-                setErrorMessage('Failed to fetch election details.');
+                setErrorMessage('Failed to fetch election details. Please try again later.');
             } finally {
                 setLoading(false);
             }
@@ -29,20 +32,28 @@ const ElectionDetails = () => {
     }, [id]);
 
     const handleDelete = async () => {
-        const confirmDelete = window.confirm('Are you sure you want to delete this election?');
-        if (confirmDelete) {
-            try {
-                const token = localStorage.getItem('token');
-                await axios.delete(`http://localhost:3500/elections/${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                navigate('/admin'); // Redirect to admin dashboard after deletion
-            } catch (err) {
-                setErrorMessage('Failed to delete the election.');
-            }
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`http://localhost:3500/elections/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setSuccessMessage('Election deleted successfully!'); // Success message on deletion
+            setTimeout(() => {
+                navigate('/admin'); // Redirect after a delay to show the message
+            }, 2000);
+        } catch (err) {
+            setErrorMessage('Failed to delete the election. Please try again later.');
         }
+    };
+
+    const confirmDelete = () => {
+        setShowConfirmDelete(true); // Show the confirmation dialog
+    };
+
+    const cancelDelete = () => {
+        setShowConfirmDelete(false); // Close the confirmation dialog
     };
 
     if (loading) {
@@ -72,7 +83,19 @@ const ElectionDetails = () => {
                     <p>No nominees available for this election.</p>
                 )}
             </ul>
-            <button onClick={handleDelete}>Delete Election</button>
+            <button onClick={confirmDelete}>Delete Election</button>
+
+            {/* Confirmation Dialog */}
+            {showConfirmDelete && (
+                <div className="confirm-delete-dialog">
+                    <p>Are you sure you want to delete this election? This action cannot be undone.</p>
+                    <button onClick={handleDelete}>Yes, Delete</button>
+                    <button onClick={cancelDelete}>Cancel</button>
+                </div>
+            )}
+
+            {/* Success Message */}
+            {successMessage && <p className="success">{successMessage}</p>}
         </div>
     );
 };

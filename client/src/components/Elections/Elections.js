@@ -1,72 +1,77 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import ElectionCard from './ElectionCard'; // Import the ElectionCard component
 import { useNavigate } from 'react-router-dom';
+import ElectionCard from './ElectionCard';
+import '../Styles/Elections.css';
 
 const Elections = () => {
-    const [currentElections, setCurrentElections] = useState([]);
+    const [availableElections, setAvailableElections] = useState([]);
     const [previousElections, setPreviousElections] = useState([]);
     const [error, setError] = useState('');
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchElections = async () => {
-            const token = localStorage.getItem('token'); // Retrieve the token
+            const token = localStorage.getItem('token');
+
             if (!token) {
-                navigate('/login'); // Redirect to login if no token is found
-                return; // Exit the function early
+                navigate('/login');
+                return;
             }
 
             try {
                 const response = await axios.get('http://localhost:3500/elections', {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Include the token in the header
+                        Authorization: `Bearer ${token}`,
                     },
                 });
 
-                const currentDate = new Date();
+                const now = new Date();
+                const available = response.data.filter(
+                    (election) => new Date(election.endDate) > now
+                );
+                const previous = response.data.filter(
+                    (election) => new Date(election.endDate) <= now
+                );
 
-                // Filter current elections
-                const availableElections = response.data.filter(election => new Date(election.endDate) > currentDate);
-                setCurrentElections(availableElections);
-
-                // Filter previous elections
-                const pastElections = response.data.filter(election => new Date(election.endDate) <= currentDate);
-                // Sort past elections by end date in descending order and get the most recent 5
-                const sortedPastElections = pastElections.sort((a, b) => new Date(b.endDate) - new Date(a.endDate)).slice(0, 5);
-                setPreviousElections(sortedPastElections);
+                setAvailableElections(available);
+                setPreviousElections(previous);
             } catch (error) {
                 console.error('Error fetching elections:', error.response ? error.response.data : error.message);
-                setError('Failed to fetch elections. Please try again later.');
+                if (error.response && error.response.status === 403) {
+                    setError('Access denied. Please log in again.'); // Clear message for access issues
+                    navigate('/login');
+                } else {
+                    setError('Unable to retrieve elections. Please check your connection and try again.'); // General error message
+                }
             }
         };
-
+        
         fetchElections();
-    }, [navigate]); // Add navigate to the dependency array
+    }, [navigate]);
 
     return (
-        <div>
+        <div className="elections-container">
             <h1>Available Elections</h1>
             {error && <p className="error">{error}</p>}
-            <h2>Current Elections</h2>
             <div className="elections-list">
-                {currentElections.length > 0 ? (
-                    currentElections.map((election) => (
+                {availableElections.length > 0 ? (
+                    availableElections.map((election) => (
                         <ElectionCard key={election._id} election={election} />
                     ))
                 ) : (
-                    <p>No current elections available.</p>
+                    <p className="no-elections">Currently, there are no available elections.</p>
                 )}
             </div>
 
-            <h2>Previous Elections</h2>
-            <div className="previous-elections-list">
+            <h2 className="prev">Previous Elections</h2>
+            <div className="elections-list">
                 {previousElections.length > 0 ? (
                     previousElections.map((election) => (
                         <ElectionCard key={election._id} election={election} />
                     ))
                 ) : (
-                    <p>No previous elections available.</p>
+                    <p className="no-elections">There are no previous elections to display.</p>
                 )}
             </div>
         </div>
